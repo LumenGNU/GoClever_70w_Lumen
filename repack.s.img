@@ -1,0 +1,198 @@
+#!/bin/bash
+
+declare -r _tag=$(date "+%d.%m.%y_%H.%M")
+printf "%s\n" "Обрабатывается ${TARGET_FILE} ..."
+
+set -o nounset
+
+function errexit
+{
+	printf "\n${0}:ERROR<${2}> ${1}\n" >&2
+	exit ${2}
+}
+
+if [[ "${EUID}" != "0" ]]
+then
+	errexit "Для обработки прав доступа к файлам необходимы права администратора! Используй sudo make." 4
+fi
+
+declare -r IN_FILE=${ORIG_FILE:?ERROR! IN_FILE не инициализирован! Используй export ORIG_FILE в Makefile}
+declare -r OUT_FILE=${TARGET_FILE:?ERROR! OUT_FILE Используй export TARGET_FILE в Makefile}
+declare -r OUT_DIR=$(dirname ${OUT_FILE})
+
+
+declare -r TMP_DIR="$(mktemp --directory)"
+
+# Очищать временный каталог при выходе
+function cleaner
+{
+	rm -rf "${TMP_DIR}"
+}
+trap 'cleaner' EXIT TERM INT
+
+#-------------------------------------------------------------------------------
+
+# заменяет ТОЛЬКО существующий файл с сохранением владельца/групы и прав доступа
+# параметры:
+# {1} - источник
+# {2} - назначение
+function override_file
+{
+	local -r dest="${TMP_DIR}/${2}"
+	[ ! -e  "${1}" ] && errexit "Файл источник \'${1}\' не существует." 7
+	[ ! -e  "${dest}" ] && errexit "Файл назначения \'${dest}\' не существует." 7
+	#get prmission
+	local -r statBefore=$(stat "${dest}" --printf="%u:%g-%a")
+	cp -T "${1}" "${dest}" || errexit "Не удалось заменить \'${1}\' -> \'${dest}\'; CP ошибка ${?}." 8
+	local -r mods="${statBefore}"
+	local -r owner=$(echo "${mods}" | cut -d '-' -f 1)
+	local -r mode=$(echo "${mods}" | cut -d '-' -f 2)
+	chown "${owner}" "${dest}" || errexit "Не удалось задать владельца:группу для \'${dest}\'; CHOWN ошибка ${?}." 8
+	chmod "${mode}" "${dest}" || errexit "Не удалось задать права для \'${dest}\'; CHMOD ошибка ${?}." 8
+	local -r statAfter=$(stat "${dest}" --printf="%u:%g-%a")
+	[[ "${statBefore}" != "${statAfter}" ]] && errexit "Не удалось сохранить права доступа к \'${dest}\' [ ${statBefore} != ${statAfter} ] " 8
+	printf "%s\n" "( ${statAfter} )  .. ok."
+}
+
+# удаляет ТОЛЬКО существующий файл или СУЩЕСТВУЮЩУЮ ПУСТУЮ директорию
+# параметры:
+# {1} - файл/директория для удаления
+function remove_file
+{
+	printf "\tУдаляется файл \'%s\' " "${1}"
+	local -r target="${TMP_DIR}/${1}"
+	[ ! -e  "${target}" ] && errexit "Файл \'${1}\' не существует." 7
+	rm --dir "${target}" || errexit "Не удалось удалить \'${target}\'; RM ошибка ${?}." 8
+	printf "%s\n" " .. ok."
+}
+
+
+# {1} - из
+# {2} - в
+# {3} - права
+function add_file
+{
+	local -r dest="${TMP_DIR}/${2}"
+	if [ -e  "${dest}" ]
+	then # если файл уже существует
+		printf "\tЗаменяется файл \'%s\' из \'%s\' " "${2}" "${1}"
+		override_file "${1}" "${2}"
+
+	else # сначала создать файл
+		printf "\tДобавляется файл \'%s\' из \'%s\' " "${2}" "${1}"
+		local -r mods=${3:-"0:0-644"}
+		local -r owner=$(echo "${mods}" | cut -d '-' -f 1)
+		local -r mode=$(echo "${mods}" | cut -d '-' -f 2)
+
+		touch "${dest}"  || errexit "Не удалось создать \'${dest}\'; TOUCH ошибка ${?}." 8
+		chown "${owner}" "${dest}" || errexit "Не удалось задать владельца:группу для \'${dest}\'; CHOWN ошибка ${?}." 8
+		chmod "${mode}" "${dest}" || errexit "Не удалось задать права для \'${dest}\'; CHMOD ошибка ${?}." 8
+
+		override_file "${1}" "${2}"
+	fi
+}
+
+
+function ln_file
+{
+	printf "\tСоздается ссылка \'%s\' -> \'%s\' " "${2}" "${1}"
+	local -r dest="${TMP_DIR}/${1}"
+	[ ! -e  "${dest}" ] && errexit "Файл \'${1}\' не существует." 7
+	ln  --symbolic --relative "${dest}" "${TMP_DIR}/${2}" || errexit "Не удалось создать ссылку \'${2}\' -> \'${1}\' ; LN ошибка ${?}." 9
+	printf "%s\n" " .. ok."
+}
+
+
+# обрабатывае список файлов ${2} и передает
+# каждую строку списка в ф-цию ${1}_file с параметром ${строка}
+function _files
+{
+	printf "\tОбрабатывается список \'%s\' \n" "${1}"
+	while read line
+	do
+		if [ -n "${line}" ]
+		then
+			[[ "${line}" =~ ^# ]] || ${1}_file ${line}
+		fi
+	done < <(sed 's:^[ \t]*::;s:[ \t]*$::' "${2}" | sed 's:/*$::' | sort -r | uniq)
+	printf "\t------------------- %s\n" "ok"
+}
+
+
+function process_build_prop
+{
+	sed "/ro.build.display.id/s/=.*/=Lumen_${_tag}/" "${1}" > "${TMP_DIR}/build.prop"
+	add_file "${TMP_DIR}/build.prop" "${2}"
+
+	rm -f "${OUT_DIR}/buildver_"*
+	touch "${OUT_DIR}/buildver_${_tag}"
+	chmod 666 "${OUT_DIR}/buildver_${_tag}"
+
+#	[[ -z "$(git checkout)" ]] && git tag ${_tag}
+}
+
+#-------------------------------------------------------------------------------
+
+
+printf "%s" "Распаковка ..."
+tar --extract --directory "${TMP_DIR}" --file "${IN_FILE}" \
+    --no-auto-compress \
+    --atime-preserve \
+    --same-permissions \
+    --same-owner \
+    --numeric-owner || errexit "Не удалось распаковать \'${IN_FILE}\'; TAR ошибка ${?}." 5
+printf "%s\n" " ok."
+
+
+
+printf "%s\n" "Обработка ..."
+for arn in ${*}
+do
+case "${arn}" in
+	$(basename "${0}") )    : ;; # этот скрипт
+	"${IN_FILE}" )          : ;; # system.img уже обрабатывается
+	"build.prop")            process_build_prop "${arn}" "system/build.prop" ;; # build.prop
+	"default.prop")          add_file "${arn}" "system/default.prop"         ;; # default.prop
+	"system.rm")             _files remove "${arn}"                          ;; # список для удаления
+	"system.add")            _files add "${arn}"                             ;; # список для добавления
+	"system.ln")             _files ln "${arn}"                              ;; #
+	* ) errexit "Неизвестный файл \'${arn}\'. Что с ним делать??!" 3 ;;
+
+esac
+done
+printf "%s\n" "ok."
+
+declare sName='system.tar'
+
+printf "%s" "Упаковка ..."
+tar --create --directory "${TMP_DIR}" --file  "${TMP_DIR}/${sName}" \
+    system/ \
+    --no-auto-compress \
+    --posix \
+    --atime-preserve \
+    --same-permissions \
+    --same-owner \
+    --numeric-owner || errexit "Не удалось упаковать \'${TMP_DIR}/${sName}\'; TAR ошибка ${?}." 5
+##TODO проверять размер полученого пакета и скоректировать part.system в items.itm
+## не менять а сообщать что надо-бы поменять. если в items.itm < фактического
+## и выход с -ошибкой- Без ошибки
+
+printf "%s [ размер -- %s ]\n" " ok." $(stat --printf=%s ${TMP_DIR}/${sName} | numfmt --to=si)
+
+printf "%s" "Сжатие ... "
+declare -ir compresLevel=${USE_GZIP_FOR_SYSTEM_IMG:-1}
+if (( 0 < ${compresLevel} ))
+then
+	printf "%s" " gzip -${compresLevel} ... "
+	gzip -${compresLevel} "${TMP_DIR}/${sName}"  || errexit "Не удалось сжать \'${TMP_DIR}/${sName}\'; GZIP ошибка ${?}." 5
+	sName="${sName}.gz"
+else
+	printf "%s" "не используется ... "
+fi
+printf "%s\n" " ok."
+
+printf "%s" "Перемещение  ${TMP_DIR}/${sName} -> ${OUT_FILE}... "
+mv "${TMP_DIR}/${sName}" "${OUT_FILE}" || errexit "Не удалось переместить \'${TMP_DIR}/${sName}\' -> \'${OUT_FILE}\'; MV ошибка ${?}." 5
+printf "%s\n" " ok."
+
+exit 0

@@ -1,0 +1,47 @@
+#
+# Список файлов для добавления в system.img
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# одна строка — один файл (и только файл).
+# если строка начинается с # — это комментарий.
+# путь должен начинаться с system/ без / в начале.
+# пустые строки игнорируются.
+# файл источник должен существовать.
+# повторения допускаются.
+# перед использованием список будет отсортирован, повторы — удалены.
+# пробелы в начале/конце строки допустимы.
+# Невозможно добавить директорию
+#
+# Если файл уже существует он будет заменен с сохранением оригинальных
+#  владельца:группы и прав доступа
+#
+# MODS — U:G-P (без пробелов), где
+#     U - ID владельца
+#     G - ID группы
+#     P - восьмеричные права доступа
+# Если mods не указан по умолчанию используется '0:0-644'
+#
+# пример:
+# [ из ]                                           [ в ]                                  [mods]
+# /usr/share/sounds/ubuntu/stereo/window-slide.ogg system/media/audio/ringtones/World.ogg 1:101-321
+#
+# ==============================================================================
+
+#файлы со списками изменений
+system.add    system/system.add
+system.rm     system/system.rm
+system.ln     system/system.ln
+
+#файл с описанием изменений
+README        system/README
+
+## Нормальная клавиатура (Hacker's Keyboard)
+../apps/org.pocketworkstation.pckeyboard.apk system/app/pckeyboard.apk
+# и русский словарь для нее
+#../apps/org.pocketworkstation.dict.ru.apk system/app/org.pocketworkstation.dict.ru.apk
+
+# Терминал
+#../apps/jackpal.androidterm_71.apk system/app/androidterm.apk
+
+# BusyBox v1.21.0
+#../apps/busybox-armv5l system/bin/busybox
