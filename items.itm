@@ -1,0 +1,213 @@
+﻿#######################################################################
+# Goclever Terra 70W (A4.3.2)
+#######################################################################
+
+
+items.start
+
+
+#
+# board common
+board.hwid             IT7008
+board.cpu              x15
+board.case             0
+board.disk             nnd
+board.string.product   TERRA_7oW
+board.string.device    IT7008
+board.string.model     TERRA_7oW
+board.string.label     TERRA_7oW
+
+soc.cpu.freq           0
+soc.cpu.dvfs           1
+soc.gpu.freq           444
+soc.gpu.dvfs           1
+soc.vpu.dvfs           1
+soc.usb.otg            1
+soc.usb.host           1
+
+config.ui              tablet
+config.wdt             0
+config.phase           final
+config.preload         preboot
+config.root            1 #< TODO
+config.trace           1 #< что-то из этого менять нельзя, висит на заставке, ЧТО?
+config.media.pmm       36
+config.media.out       rgb565
+config.media.profile   Q8
+
+config.otg.nluns       2
+config.otg.extraid     pad.24
+otg.local.label        TERRA_7oW
+otg.function           auto
+otg.design             standard
+
+
+config.antishake       1
+board.arch             a5pv10
+
+#
+# 1---sleep in charging mode, 0---not sleep in charging mode
+charger.mode.suspend     1
+
+#
+# init i2c codes, i2c.channel.address.value
+initi2c.0                i2c.0.40.99 ##
+
+#
+# CPU
+cpu.power                pmu.sw1
+cpu.io33.power           pmu.sw2
+
+#
+# core1v2 voltage adjustment
+#the second parameter: pwm channel
+#the third parameter: duty. 5:1.29v, 6:1.26v, 7:1.24v, 8:1.22v, 9:1.2v, 10:1.19v, 11:1.16v,
+#                           12:1.14v, 13:1.12v, 14:1.1v, 15:1.08v, 16:1.06v, 17:1.04v, 18:1.02v
+core1v2.ctrl             pwm.1.9
+
+#
+# memory
+memory.cscount          1          # 1 or 2
+memory.power            pmu.swio
+memory.freq             400        #
+memory.type             DDR3       # mDDR DDR2 DDR3 or LPDDR2
+memory.io_width         16         # 8 16 or 32
+memory.density          2GB      # 64MB 128MB 256MB 512MB 1GB 2GB 4GB 8GB
+                                 # если поставить менше окирпичивается после прошивки
+memory.cl               6          # 2 ~ 8
+memory.rtt              DIV_4      # DIV_4 DIV_2 DIV_6 only for DDR3
+memory.driver           DIV_6      # DIV_6 DIV_7 only for DDR3
+memory.reduce_en        0          # 0 or 1  0 : 32bit total    1 : 16bit total
+memory.train_en         0
+memory.timing_en        0          # 0 or 1  0 : use default value  1 : use memory.tras and memory.trfc (should depend on the training result)
+memory.tras             15         # train_en = 0 and timing_en = 1
+memory.trfc             64         # train_en = 0 and timing_en = 1
+memory.lpddr_type_en    0          # for LPDDR2 S2 or S4 and 1GB mDDR addr row and col
+memory.tr_fr_max        528        #  600 ~ 264
+memory.tr_fr_low        396        # describe the frequency from which is not acceptalbe
+memory.tr_pre_lv        5          #  1 ~
+
+#
+# camera
+# Пытаюсь отключить камеру
+camera.flash.exist         0 #нет вспышки
+camera.front.exist         0 #нет фронтальной камеры
+camera.rear.exist          0 #нет передней камеры
+#~ camera.rear.interface      camif
+#~ camera.rear.model          auto.siv121d_xyc.gc0308_demo.gc0329_demo.gc2035_demo
+#~ camera.rear.orientation    90
+#~ camera.rear.align          low8_align
+#~ camera.rear.ctrl           i2c.1
+#~ camera.rear.power.dvdd     pads.43
+#~ camera.rear.power.avdd     pads.43
+#~ camera.rear.power.down     pads.136
+
+#
+# InfoTM Display System
+ids.pixformat       888
+ids.default         lcd
+ids.acm             60
+lcd.model           AR101H13N_1024x600
+lcd.density         160
+lcd.port            ids.0
+lcd.cable           888
+lcd.rgb             rgb
+lcd.power.v33       pads.94
+
+#
+# Backlight
+bl.ctrl             pwm.2
+bl.freq             3000
+bl.delay            250
+bl.duty.dark        30
+bl.duty.light       255
+bl.duty.default     100
+bl.power            pads.109
+
+#
+# codec
+codec.model         es8328
+codec.ctrl          i2c.1
+codec.data          i2s.0
+sound.speaker       pads.108
+sound.hp            pads.118
+
+#
+# touch screen
+ts.model          GDQ8gslx680HD
+ts.ctrl           i2c.2
+ts.int            pads.115
+ts.orientation    yx
+
+
+#
+# sensors
+# sensor.grivaty
+sensor.grivaty.model                  auto
+sensor.grivaty.ctrl                   i2c.3
+sensor.grivaty.int                    pads.-75
+sensor.grivaty.mma7660.orientation    xyz
+sensor.grivaty.dmard06.orientation    XYz
+sensor.grivaty.dmard10.orientation    xyz
+sensor.grivaty.mc32x0.orientation     Yxz
+sensor.grivaty.stk8312.orientation    yxz
+sensor.grivaty.da311.orientation      XyZ
+
+#
+# keys
+keys.volup      pads.28
+keys.voldown    pads.27
+keys.recovery   pads.27
+
+#
+# keyboard
+keyboard.model   ht82b40xv150
+keyboard.region  english
+
+#
+#if we have gmac,please set eth.model with "gmac"
+###else we use usb_eth, please set eth.model with "usb"
+#ETH
+eth.model       usb
+
+#
+# WIFI
+wifi.model      usb.RTL8188EUS
+#TODO на чипе: RTL8188ETV
+
+#
+#charging full detection
+power.full      pads.114
+#charging current
+batt.icc        600
+
+#
+# battery
+power.curve.discharge     4049.3961.3883.3823.3756.3663.3645.3611.3580.3562.3508.3463
+power.curve.charge        4115.4081.4003.3943.3876.3788.3770.3736.3710.3692.3638.3603
+power.acboot              1
+power.low                 3450
+batt.capacity             2500
+
+#
+#old arch, MOS: use a mos to control DDR controller power supply, noMOS: do not use this mos, short directly.
+suspend.mode              noMOS
+
+#
+# partitions
+#всего памяти 4000
+part.boot           50
+part.misc           256
+part.system         600
+part.userdata       2000
+part.ums            -1
+
+
+misc.multimedia     0
+
+recovery.iuw        0
+
+#virtual volume key up & down
+virtualvolkey       0
+
+items.end

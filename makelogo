@@ -1,0 +1,73 @@
+#!/bin/bash
+
+function _get_list
+{
+printf "%s" "poweron.bmp
+1
+1152054
+bootup.bmp
+2252
+1152054
+batteryfull.bmp
+4503
+28856
+batterylow.bmp
+4560
+28856
+battery0.bmp
+4617
+28856
+battery1.bmp
+4674
+28856
+battery2.bmp
+4731
+28856
+battery3.bmp
+4788
+28856"
+
+}
+
+
+#затолкать
+function push
+{
+	local -r outFile=${1:?"Не задан целевой файл!"}
+	while read name
+	do
+		read offset
+		read count
+		realCount=$(stat --printf=%s logo/$name)
+		if (( $realCount > $count ))
+		then
+			echo "$name ERROR : $realCount > $count" >&2 ; exit 18
+		else
+			dd if=logo/$name of="${outFile}" ibs=1 obs=1 \
+			seek=$((offset * 512)) conv=notrunc
+		fi
+	done < <(_get_list)
+}
+
+#витянуть
+function pull
+{
+	while read name
+	do
+		read offset
+		read count
+		[[ -e logo/$name ]] && echo "logo/$name существует, пропускаю!" >&2 && continue
+		mkdir -p logo/
+		dd if=../orig/logo.isi of=logo/$name  ibs=1 skip=$((offset * 512)) count=$count
+	done < <(_get_list)
+}
+
+case "${1}" in
+	"pull" ) pull ;;
+	"push" ) push "${2}";;
+	* ) echo "или push (затолкать) или pull (витянуть)" >&2 ; exit 1 ;;
+esac
+
+exit 0
+
+poweron.bmp _on_888(24)
