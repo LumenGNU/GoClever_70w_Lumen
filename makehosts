@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Использую источники из проекта AdAway
+# https://github.com/AdAway/AdAway/wiki/HostsSources
+
+curl 'https://adaway.org/hosts.txt' > hosts/hosts
+curl 'https://hosts-file.net/ad_servers.txt' >> hosts/hosts
+curl 'https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext' >> hosts/hosts
+
+exit 0

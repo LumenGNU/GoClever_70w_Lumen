@@ -56,7 +56,8 @@ $(OUT_DIR)/recovery-rd.img : $(ORIG_DIR)/recovery-rd.img
 	cp -f "$(<)" "$(@)"
 	chmod 666 "$(@)"
 
-
+system.add : makehosts hosts/hosts
+	touch "$(@)"
 
 .DELETE_ON_ERROR : $(OUT_DIR)/system.img
 $(OUT_DIR)/system.img : $(ORIG_DIR)/system.img \

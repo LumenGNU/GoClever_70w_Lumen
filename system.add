@@ -45,3 +45,6 @@ README        system/README
 
 # BusyBox v1.21.0
 #../apps/busybox-armv5l system/bin/busybox
+
+## Кастомный hosts
+hosts/hosts system/etc/hosts
