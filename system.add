@@ -36,9 +36,12 @@ system.ln     system/system.ln
 README        system/README
 
 ## Нормальная клавиатура (Hacker's Keyboard)
-../apps/org.pocketworkstation.pckeyboard.apk system/app/pckeyboard.apk
+../apps/pckeyboard.apk system/app/pckeyboard.apk
 # и русский словарь для нее
 #../apps/org.pocketworkstation.dict.ru.apk system/app/org.pocketworkstation.dict.ru.apk
+
+## ES File Manager v3.2.5.4
+../apps/com.estrongs.android.pop.apk system/app/com.estrongs.android.pop.apk
 
 # Терминал
 #../apps/jackpal.androidterm_71.apk system/app/androidterm.apk
@@ -48,3 +51,6 @@ README        system/README
 
 ## Кастомный hosts
 hosts/hosts system/etc/hosts
+
+## Анимация загрузки
+bootanim/bootanimation.zip system/media/bootanimation.zip

@@ -56,7 +56,10 @@ $(OUT_DIR)/recovery-rd.img : $(ORIG_DIR)/recovery-rd.img
 	cp -f "$(<)" "$(@)"
 	chmod 666 "$(@)"
 
-system.add : makehosts hosts/hosts
+system.add : makehosts hosts/hosts \
+             makebootanim bootanim/bootanimation.zip \
+             ../apps/pckeyboard.apk \
+             ../apps/com.estrongs.android.pop.apk
 	touch "$(@)"
 
 .DELETE_ON_ERROR : $(OUT_DIR)/system.img
