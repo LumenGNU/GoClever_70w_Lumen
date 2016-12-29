@@ -408,48 +408,48 @@ system/app/MiramemsGsensorTool.apk
 #system/media/bootanimation.zip
 #...............................................................................
 
-##
-## Линки на tollbox в папке system/bin/. (будут заменены линками на busybox).
-system/bin/uptime
-system/bin/umount
-system/bin/touch
-system/bin/top
-system/bin/tar
-system/bin/sync
-system/bin/sleep
-system/bin/sh
-system/bin/setconsole
-system/bin/route
-system/bin/rmmod
-system/bin/rmdir
-system/bin/rm
-system/bin/renice
-system/bin/reboot
-system/bin/ps
-system/bin/printenv
-system/bin/ping
-system/bin/netstat
-system/bin/mv
-system/bin/mount
-system/bin/mkdir
-system/bin/lsmod
-system/bin/ls
-system/bin/ln
-system/bin/kill
-system/bin/ip
-system/bin/insmod
-system/bin/ifconfig
-system/bin/id
-system/bin/gzip
-system/bin/grep
-system/bin/du
-system/bin/dmesg
-system/bin/df
-system/bin/dd
-system/bin/date
-system/bin/cp
-system/bin/cmp
-system/bin/clear
-system/bin/chown
-system/bin/chmod
-system/bin/cat
+#
+# Линки на tollbox в папке system/bin/. (будут заменены линками на busybox).
+# system/bin/uptime
+# system/bin/umount
+# system/bin/touch
+# system/bin/top
+# system/bin/tar
+# system/bin/sync
+# system/bin/sleep
+# system/bin/sh
+# system/bin/setconsole
+# system/bin/route
+# system/bin/rmmod
+# system/bin/rmdir
+# system/bin/rm
+# system/bin/renice
+# system/bin/reboot
+# system/bin/ps
+# system/bin/printenv
+# system/bin/ping
+# system/bin/netstat
+# system/bin/mv
+# system/bin/mount
+# system/bin/mkdir
+# system/bin/lsmod
+# system/bin/ls
+# system/bin/ln
+# system/bin/kill
+# system/bin/ip
+# system/bin/insmod
+# system/bin/ifconfig
+# system/bin/id
+# system/bin/gzip
+# system/bin/grep
+# system/bin/du
+# system/bin/dmesg
+# system/bin/df
+# system/bin/dd
+# system/bin/date
+# system/bin/cp
+# system/bin/cmp
+# system/bin/clear
+# system/bin/chown
+# system/bin/chmod
+# system/bin/cat
