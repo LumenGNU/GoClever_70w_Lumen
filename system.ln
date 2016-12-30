@@ -1,0 +1,3 @@
+
+# для root
+system/etc/install-recovery.sh system/bin/install-recovery.sh

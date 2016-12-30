@@ -75,20 +75,39 @@ function add_file
 	local -r dest="${TMP_DIR}/${2}"
 	if [ -e  "${dest}" ]
 	then # если файл уже существует
+
+		[[ xxx__mkdir_ == "${1}" ]] && errexit "Папка ${1} уже существует." 101
+
 		printf "\tЗаменяется файл \'%s\' из \'%s\' " "${2}" "${1}"
 		override_file "${1}" "${2}"
 
 	else # сначала создать файл
+
+
+
+
+		if [[ xxx__mkdir_ == "${1}" ]]
+		then
+		printf "\tДобавляется папка \'%s\'" "${2}"
+			local -r mods=${3:-"0:0-755"}
+		    local -r owner=$(echo "${mods}" | cut -d '-' -f 1)
+		    local -r mode=$(echo "${mods}" | cut -d '-' -f 2)
+			mkdir "${dest}"  || errexit "Не удалось создать папку \'${dest}\'; MKDIR ошибка ${?}." 8
+			chown "${owner}" "${dest}" || errexit "Не удалось задать владельца:группу для \'${dest}\'; CHOWN ошибка ${?}." 8
+			chmod "${mode}" "${dest}" || errexit "Не удалось задать права для \'${dest}\'; CHMOD ошибка ${?}." 8
+			printf "%s\n" "( ${mods} )  .. ok."
+		else
 		printf "\tДобавляется файл \'%s\' из \'%s\' " "${2}" "${1}"
-		local -r mods=${3:-"0:0-644"}
-		local -r owner=$(echo "${mods}" | cut -d '-' -f 1)
-		local -r mode=$(echo "${mods}" | cut -d '-' -f 2)
+			local -r mods=${3:-"0:0-644"}
+		    local -r owner=$(echo "${mods}" | cut -d '-' -f 1)
+		    local -r mode=$(echo "${mods}" | cut -d '-' -f 2)
+			touch "${dest}"  || errexit "Не удалось создать \'${dest}\'; TOUCH ошибка ${?}." 8
+			chown "${owner}" "${dest}" || errexit "Не удалось задать владельца:группу для \'${dest}\'; CHOWN ошибка ${?}." 8
+			chmod "${mode}" "${dest}" || errexit "Не удалось задать права для \'${dest}\'; CHMOD ошибка ${?}." 8
 
-		touch "${dest}"  || errexit "Не удалось создать \'${dest}\'; TOUCH ошибка ${?}." 8
-		chown "${owner}" "${dest}" || errexit "Не удалось задать владельца:группу для \'${dest}\'; CHOWN ошибка ${?}." 8
-		chmod "${mode}" "${dest}" || errexit "Не удалось задать права для \'${dest}\'; CHMOD ошибка ${?}." 8
+			override_file "${1}" "${2}"
+		fi
 
-		override_file "${1}" "${2}"
 	fi
 }
 

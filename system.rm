@@ -290,9 +290,9 @@ system/app/Music.apk
 ## Календарь.
 system/app/Calendar.apk
 system/app/Calendar.odex
-## Почта.
-system/app/Email.odex
-system/app/Email.apk
+# Почта.
+# system/app/Email.odex
+# system/app/Email.apk
 ## Стандартный видео плеер.
 system/app/VideoPlayer.apk
 ## Корпоративная почта
@@ -453,3 +453,6 @@ system/app/MiramemsGsensorTool.apk
 # system/bin/chown
 # system/bin/chmod
 # system/bin/cat
+
+## Стоковый busybox
+system/bin/busybox

@@ -10,7 +10,9 @@
 # повторения допускаются.
 # перед использованием список будет отсортирован, повторы — удалены.
 # пробелы в начале/конце строки допустимы.
-# Невозможно добавить директорию
+# если в качестве источника задать строку 'xxx__mkdir_' - то будет создана
+#  (только если не существует) папка по указанному пути с указанными
+#  правами (по умолчанию 755).
 #
 # Если файл уже существует он будет заменен с сохранением оригинальных
 #  владельца:группы и прав доступа
@@ -43,14 +45,32 @@ README        system/README
 ## ES File Manager v3.2.5.4
 ../apps/com.estrongs.android.pop.apk system/app/com.estrongs.android.pop.apk
 
-# Терминал
-#../apps/jackpal.androidterm_71.apk system/app/androidterm.apk
-
-# BusyBox v1.21.0
-#../apps/busybox-armv5l system/bin/busybox
-
 ## Кастомный hosts
 hosts/hosts system/etc/hosts
 
 ## Анимация загрузки
 bootanim/bootanimation.zip system/media/bootanimation.zip
+
+
+## Root с SuperSu и BusyBox
+xxx__mkdir_ system/bin/.ext/ 0:0-711
+xxx__mkdir_ system/sbin      0:0-777
+../root/bin/ext/su              system/bin/.ext/.su             0:0-0755
+../root/etc/has_su_daemon       system/etc/.has_su_daemon       0:0-644
+../root/etc/installed_su_daemon system/etc/.installed_su_daemon 0:0-644
+../root/etc/install-recovery.sh system/etc/install-recovery.sh  0:0-755
+../root/etc/install_recovery.sh system/etc/install_recovery.sh  0:0-755
+ # почему-то в оригинале доступ 666
+../root/lib/libsupol.so         system/lib/libsupol.so  0:0-644
+../root/xbin/tmpsu              system/xbin/.tmpsu      0:0-755
+../root/xbin/busybox            system/xbin/busybox     0:0-755
+../root/xbin/daemonsu           system/xbin/daemonsu    0:0-755
+../root/xbin/su                 system/xbin/su          0:0-755
+../root/xbin/sugote             system/xbin/sugote      0:0-755
+../root/xbin/sugote-mksh        system/xbin/sugote-mksh 0:0-755
+../root/xbin/supolicy           system/xbin/supolicy    0:0-755
+../root/app/SuperSU_v2.79.apk   system/app/SuperSU.apk  0:0-644
+#==========================================================================
+
+## Консольный архиватор 7z.
+../apps/p7za_arm system/xbin/7za 0:2000-755
