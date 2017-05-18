@@ -1,6 +1,13 @@
 SHELL = /bin/sh
 
+user_ID := $(shell echo $${UID})
+ifneq "$(user_ID)" "0"
+   $(error Superuser only!)
+endif
+
+
 .DEFAULT_GOAL := dist
+
 
 ###
 ### Параметры ..................................................................

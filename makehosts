@@ -3,8 +3,17 @@
 # Использую источники из проекта AdAway
 # https://github.com/AdAway/AdAway/wiki/HostsSources
 
-curl 'https://adaway.org/hosts.txt' > hosts/hosts
-curl 'https://hosts-file.net/ad_servers.txt' >> hosts/hosts
-curl 'https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext' >> hosts/hosts
+curl 'https://adaway.org/hosts.txt' | sed 's/ *#.*//' > hosts/hosts.tmf
+echo "# -- "  >> hosts/hosts.tmf
+curl 'https://hosts-file.net/ad_servers.txt' | sed 's/ *#.*//' >> hosts/hosts.tmf
+echo "# -- "  >> hosts/hosts.tmf
+curl 'https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext' | sed 's/ *#.*//' >> hosts/hosts.tmf
+
+
+cat hosts/hosts.tmf | tr -s [:blank:] ' '  > hosts/hosts.tmf2
+
+cat hosts/hosts.tmf2 | sort | uniq >  hosts/hosts
+
+rm hosts/hosts.tmf hosts/hosts.tmf2
 
 exit 0
